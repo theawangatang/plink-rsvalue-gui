@@ -1,4 +1,4 @@
-# PLINK GUI for RS Value Search
+# plink-rsvalue-gui
 A GUI to conduct rsvalue searches using Binary PED (".bed", ".bim", and ".fam") files with Shaun Purcell's PLINK
 
 This programme requires that you have PLINK, which can be downloaded here:
