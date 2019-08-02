@@ -2,7 +2,7 @@
 '      Developed for the PM&R Research Department of        '
 '       Spaulding Rehab Hospital in Charlestown, MA         '
 '         Developed by Theawangatang Laboratories           '
-'             PLINK GUI Utility — Version 1.0               '
+'             PLINK GUI Utility — Version 1.1               '
 '                 Powered by the PLINK CLI                  '
 '                   Produced: 07/18/2019                    '
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -81,18 +81,47 @@ End Function
 '        Start of Main Programme          '
 '''''''''''''''''''''''''''''''''''''''''''
 Dim rsValue, sourceFile, destinationFolder
-Dim confirmRS, confirmSF, confirmDF, checkSF
+Dim confirmRS, confirmSF, confirmDF, checkSF, confirmRSsource
 Dim FSO, objNetwork, sourceFileName
 Dim oShell, bfile
+Dim sourceFileRS, decide
 
-rsValue=inputbox("Welcome to PLINK GUI (Beta) " + Chr(150) + " Version 1.0" + Chr(13) + "Developed by Theawangatang Laboratories" + Chr(13) & Chr(13) + "What RS Value would you like to lookup?", "PLINK GUI - Welcome", "rs1801280")
+rsValue=inputbox("Welcome to PLINK GUI (Beta) " + Chr(150) + " Version 1.0" + Chr(13) + "Developed by Theawangatang Laboratories" + Chr(13) & Chr(13) + "If you are looking up a single RS Value, type it in." + Chr(13) + "If you have a list of RS Values, type 'list'.", "PLINK GUI - Welcome", "rs1801280")
 If (rsValue = "") Then
     Wscript.Quit
 End If
 
-confirmRS=MsgBox("You are searching for '" + rsValue + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
-If (confirmRS = 2) Then
-    Wscript.Quit
+If (rsValue = "list") Then
+    sourceFileRS = True
+    confirmRSsource=MsgBox("You are searching for a list of RS Values." + Chr(13) & Chr(13) + "Click 'OK' to select your RS Value source '.txt' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    If (confirmRSsource = 2) Then
+        Wscript.Quit
+    End If
+    sourceFileRSlist = BrowseForFile()
+    checkSF = EvalString(sourceFileRSlist, ".txt")
+    If (sourceFileRSlist = "") Then
+        Do While (sourceFileRSlist = "")
+            MsgBox "You need to select a source file!", 0, "PLINK GUI - File Error"
+            sourceFileRSlist = BrowseForFile()
+        Loop
+    End If
+    If (checkSF = False) Then
+        Do While (checkSF = False)
+            MsgBox "Please select a '.txt' file!", 0, "PLINK GUI - File Error"
+            sourceFileRSlist = BrowseForFile()
+            checkSF = EvalString(sourceFileRSlist, ".txt")
+        Loop
+    End If
+    confirmRS=MsgBox("Loaded RS Value source file." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    If (confirmRS = 2) Then
+        Wscript.Quit
+    End If
+Else
+    sourceFileRS = False
+    confirmRS=MsgBox("You are searching for '" + rsValue + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    If (confirmRS = 2) Then
+        Wscript.Quit
+    End If
 End If
 
 sourceFile = BrowseForFile()
@@ -128,14 +157,36 @@ Set FSO = CreateObject("Scripting.FileSystemObject")
 Set objNetwork = CreateObject("WScript.Network")
 sourceFileName = FSO.GetBaseName(sourceFile)
 
-If Not (FSO.FolderExists(destinationFolder + "\plink_output")) Then
-    FSO.CreateFolder(destinationFolder + "\plink_output")
-End If
-If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName)) Then
-    FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName)
-End If
-If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue)) Then
-    FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue)
+If (sourceFileRS = False) Then
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output")) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output")
+    End If
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName)) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName)
+    End If
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue)) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue)
+    Else
+        decide = MsgBox(rsValue + " Exists!" + Chr(13) & Chr(13) + "Please rename/delete this folder now; otherwise it will be overwritten. Overwriting this folder may unintentionally delete data." + Chr(13) & Chr(13) + "Overwrite?", 4, "PLINK GUI - Directory Warning")
+        If (decide = 7) Then
+            Wscript.Quit
+        End If
+    End If
+Else
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output")) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output")
+    End If
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName)) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName)
+    End If
+    If Not (FSO.FolderExists(destinationFolder + "\plink_output\" + sourceFileName + "\List_RS_RENAME_ME")) Then
+        FSO.CreateFolder(destinationFolder + "\plink_output\" + sourceFileName + "\List_RS_RENAME_ME")
+    Else
+        decide = MsgBox("List_RS_RENAME_ME Exists!" + Chr(13) & Chr(13) + "Please rename/delete this folder now; otherwise it will be overwritten. Overwriting this folder may unintentionally delete data." + Chr(13) & Chr(13) + "Overwrite?", 4, "PLINK GUI - Directory Warning")
+        If (decide = 7) Then
+            Wscript.Quit
+        End If
+    End If
 End If
 
 ''''''''''''''''''''''''''''''''''''''''
@@ -143,4 +194,8 @@ End If
 ''''''''''''''''''''''''''''''''''''''''
 Set oShell = WScript.CreateObject ("WScript.shell")
 bfile = getFileName(sourceFile)
-oShell.run"cmd /K plink --bfile " + bfile + " --snp " + rsValue + " --out " + destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue + "\" + rsValue + " --make-bed --noweb", 5,True
+If (sourceFileRS = False) Then
+    oShell.run"cmd /K plink --bfile " + bfile + " --snp " + rsValue + " --out " + destinationFolder + "\plink_output\" + sourceFileName + "\" + rsValue + "\" + rsValue + " --make-bed --noweb", 5,True
+Else
+    oShell.run"cmd /K plink --bfile " + bfile + " --extract " + sourceFileRSlist + " --out " + destinationFolder + "\plink_output\" + sourceFileName + "\List_RS_RENAME_ME\List_RS_RENAME_ME --make-bed --noweb", 5,True
+End If
