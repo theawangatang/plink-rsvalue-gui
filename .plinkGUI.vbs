@@ -86,14 +86,14 @@ Dim FSO, objNetwork, sourceFileName
 Dim oShell, bfile
 Dim sourceFileRS, decide
 
-rsValue=inputbox("Welcome to PLINK GUI (Beta) " + Chr(150) + " Version 1.0" + Chr(13) + "Developed by Theawangatang Laboratories" + Chr(13) & Chr(13) + "If you are looking up a single RS Value, type it in." + Chr(13) + "If you have a list of RS Values, type 'list'.", "PLINK GUI - Welcome", "rs1801280")
+rsValue=inputbox("Welcome to PLINK GUI (Beta) " + Chr(150) + " Version 1.1" + Chr(13) + "Developed by Theawangatang Laboratories" + Chr(13) & Chr(13) + "If you are looking up a single SNP, type it in." + Chr(13) + "If you have a list of SNPs, type 'list'.", "PLINK GUI - Welcome", "rs1801280")
 If (rsValue = "") Then
     Wscript.Quit
 End If
 
 If (rsValue = "list") Then
     sourceFileRS = True
-    confirmRSsource=MsgBox("You are searching for a list of RS Values." + Chr(13) & Chr(13) + "Click 'OK' to select your RS Value source '.txt' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    confirmRSsource=MsgBox("You are searching for a list of SNPs." + Chr(13) & Chr(13) + "Click 'OK' to select your SNP source ('.txt') file, otherwise 'Cancel'", 1, "PLINK GUI - SNP Search - SNP Value")
     If (confirmRSsource = 2) Then
         Wscript.Quit
     End If
@@ -112,13 +112,13 @@ If (rsValue = "list") Then
             checkSF = EvalString(sourceFileRSlist, ".txt")
         Loop
     End If
-    confirmRS=MsgBox("Loaded RS Value source file." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    confirmRS=MsgBox("Loaded SNP source file." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - SNP Search - SNP Value")
     If (confirmRS = 2) Then
         Wscript.Quit
     End If
 Else
     sourceFileRS = False
-    confirmRS=MsgBox("You are searching for '" + rsValue + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - RS Value")
+    confirmRS=MsgBox("You are searching for '" + rsValue + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your '.bed' file, otherwise 'Cancel'", 1, "PLINK GUI - SNP Search - SNP Value")
     If (confirmRS = 2) Then
         Wscript.Quit
     End If
@@ -140,7 +140,7 @@ If (checkSF = False) Then
     Loop
 End If
 
-confirmSF=MsgBox("Your source file is: '" + sourceFile + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your output folder, otherwise 'Cancel'", 1, "PLINK GUI - RS Value Search - Source File")
+confirmSF=MsgBox("Your source file is: '" + sourceFile + "'." + Chr(13) & Chr(13) + "Click 'OK' to select your output folder, otherwise 'Cancel'", 1, "PLINK GUI - SNP Search - Source File")
 If (confirmSF = 2) Then
     Wscript.Quit
 End If
